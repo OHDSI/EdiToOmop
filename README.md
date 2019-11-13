@@ -2,7 +2,7 @@
 Project to convert Korean EDI code to the OMOP vocabulary
 
 <완료>
-- 약제, 치료재료, 수가 data 추출
+- 약제, 치료재료, 수가 data 추출, db 업로드
 
 <진행예정>
 - 삭제일 update
