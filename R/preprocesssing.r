@@ -44,7 +44,7 @@ DeviceProcess<-function(exelFilePath,
                                   col_names = TRUE)
   }
 
-  #colnames(sugaData)<-SqlRender::snakeCaseToCamelCase(colnames(sugaData))
+
 
   conceptCode<-matData[,deviceCode]
   names(conceptCode)<-"conceptCode"
@@ -404,6 +404,8 @@ UploadProcess<-function(dbms,
 ){
 
   masterData<-rbind(sugaData, drugData, deviceData, DelDeviceData)
+
+  colnames(masterData)<-SqlRender::camelCaseToSnakeCase(colnames(masterData))
 
   ## upload to DB
   connectionDetail <- DatabaseConnector::createConnectionDetails(
