@@ -35,7 +35,8 @@ NewDeviceProcess<-function(exelFilePath,
                         deviceCode,
                         deviceName,
                         startDateName,
-                        materialName
+                        materialName,
+                        startMonth
 ){
   if(is.null(materialData)){
     matData <- readxl::read_excel(exelFilePath,
@@ -79,6 +80,9 @@ NewDeviceProcess<-function(exelFilePath,
 
   matDf$validStartDate<-lubridate::as_date(matDf$validStartDate)
   matDf$validEndDate<-lubridate::as_date(matDf$validEndDate)
+
+  #remove concepts starting after updating month
+  matDf<-matDf[matDf$validStartDate <= as.Date(startMonth),]
 
   #remove \r\n
   matDf$conceptName<-gsub("\\r\n","",matDf$conceptName)

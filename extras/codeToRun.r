@@ -58,7 +58,8 @@ newDeviceData<-NewDeviceProcess(exelFilePath="./inst/excels/Device2019.11.1.xlsx
                           deviceCode = "코 드",
                           deviceName = "품 명",
                           startDateName="적용일자",
-                          materialName = "재 질"
+                          materialName = "재 질",
+                          startMonth = "2019-11-01"
 )
 
 newSugaData <- NewSugaProcess(exelFilePath = "./inst/excels/Suga2019.11.1.xlsx",
