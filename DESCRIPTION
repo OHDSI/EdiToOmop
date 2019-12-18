@@ -1,0 +1,12 @@
+Package: EdiToOmop
+Type: Package
+Title: A package for upload EDI code to OMOP code
+Version: 0.0.1
+Date: 2019-09-21
+Author: 
+  Yeon Chan Seong <ycseong07@gmail.com>,
+  Seng Chan You <applegna@gmail.com>
+Maintainer: Seng Chan You <applegna@gmail.com>
+Description: A package for upload EDI code to OMOP code
+License: Apache 2.0
+RoxygenNote: 6.1.1

@@ -24,15 +24,17 @@
 #' @param materialData    Prepared material data. Default is NULL.
 #' @param deviceCode      A column name for device EDI code.
 #' @param deviceName      A column name for device.
-#' @param material        A column name for the material of device.
+#' @param dateName        A column name for start date.
+#' @param materialName        A column name for the material of device.
 #'
 #' @export
 DeviceProcess<-function(exelFilePath,
-                        sheetName = "급여품목(인체조직포함)",
+                        sheetName = "",
                         materialData=NULL,
-                        deviceCode = "코 드",
-                        deviceName = "품 명",
-                        material = "재 질"
+                        deviceCode = "",
+                        deviceName = "",
+                        startDateName="",
+                        materialName = ""
 ){
   if(is.null(materialData)){
     matData <- readxl::read_excel(exelFilePath,
@@ -48,10 +50,12 @@ DeviceProcess<-function(exelFilePath,
   conceptName<-matData[,deviceName]
   names(conceptName)<-"conceptName"
 
-  conceptSynonym<-matData[,material]
+  conceptSynonym<-matData[,deviceName]
   names(conceptSynonym)<-"conceptSynonym"
 
-  material<-matData[,material]
+  startDate<-dplyr::pull(matData,startDateName)
+
+  material<-matData[,materialName]
   names(material)<-"material"
 
   matDf<-data.frame(conceptCode= conceptCode,
@@ -60,7 +64,7 @@ DeviceProcess<-function(exelFilePath,
                     domainId = "Device",
                     vocabularyId = "Korean EDI",
                     conceptClassId = "Therapeutic Materials",
-                    validStartDate = ifelse( is.na(matData$"적용일자"),"1970-01-01", as.character(matData$"적용일자")),
+                    validStartDate = ifelse( is.na(startDate),"1970-01-01", as.character(startDate)),
                     validEndDate = "2099-12-31",
                     invalidReason = NA,
                     ancestorConceptCode=NA,
