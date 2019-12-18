@@ -4,8 +4,16 @@
 \alias{NewDeviceProcess}
 \title{Pre-processing for DEVICE}
 \usage{
-NewDeviceProcess(exelFilePath, sheetName, materialData = NULL,
-  deviceCode, deviceName, startDateName, materialName, startMonth)
+NewDeviceProcess(
+  exelFilePath,
+  sheetName,
+  materialData = NULL,
+  deviceCode,
+  deviceName,
+  startDateName,
+  materialName,
+  startMonth
+)
 }
 \arguments{
 \item{exelFilePath}{file path for the excel file.}

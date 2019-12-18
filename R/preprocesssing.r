@@ -396,40 +396,54 @@ DelDeviceProcess<-function(exelFilePath,
   return(matDelDf)
 }
 
-UploadProcess<-function(dbms,
-                        user,
-                        password,
-                        server,
-                        schema
-){
-
-  masterData<-rbind(sugaData, drugData, deviceData, DelDeviceData)
-
-  colnames(masterData)<-SqlRender::camelCaseToSnakeCase(colnames(masterData))
-
-  ## upload to DB
-  connectionDetail <- DatabaseConnector::createConnectionDetails(
-    dbms=dbms,
-    user=user,
-    schema = schema,
-    password=password,
-    server=server
-  )
-
-  con <- DatabaseConnector::connect(connectionDetail)
-
-
-  DatabaseConnector::insertTable(connection = con,
-                                 tableName = "OMOP_CDM_Vocab",
-                                 data = masterData,
-                                 dropTableIfExists = TRUE,
-                                 createTable = TRUE,
-                                 tempTable = FALSE,
-                                 progressBar = TRUE,
-                                 useMppBulkLoad = FALSE)
-
-  ## writing CSV file
-  write.csv(masterData,file="./inst/master_data.csv", fileEncoding="UTF-8")
-
-  return(masterData)
-}
+#' #' Upload masterDf to DB
+#' #'
+#' #' @details
+#' #' Upload masterDf to DB
+#' #'
+#' #' @param dbmsName    DB to upload
+#' #' @param userName       user ID
+#' #' @param passwordName    user password
+#' #' @param serverName      server to upload
+#' #' @param schemaName      schema
+#' #'
+#' #' @export
+#' #'
+#'
+#' UploadProcess<-function(dbmsName,
+#'                         userName,
+#'                         passwordName,
+#'                         serverName,
+#'                         schemaName
+#' ){
+#'
+#'   masterData<-rbind(sugaData, drugData, deviceData, delDeviceData)
+#'
+#'   colnames(masterData)<-SqlRender::camelCaseToSnakeCase(colnames(masterData))
+#'
+#'   ## upload to DB
+#'   connectionDetail <- DatabaseConnector::createConnectionDetails(
+#'     dbms=dbmsName,
+#'     user=userName,
+#'     schema=schemaName,
+#'     password=passwordName,
+#'     server=serverName
+#'   )
+#'
+#'   con <- DatabaseConnector::connect(connectionDetail)
+#'
+#'
+#'   DatabaseConnector::insertTable(connection = con,
+#'                                  tableName = "OMOP_CDM_Vocab",
+#'                                  data = masterData,
+#'                                  dropTableIfExists = TRUE,
+#'                                  createTable = TRUE,
+#'                                  tempTable = FALSE,
+#'                                  progressBar = TRUE,
+#'                                  useMppBulkLoad = FALSE)
+#'
+#'   ## writing CSV file
+#'   write.csv(masterData,file="./inst/master_data.csv", fileEncoding="UTF-8")
+#'
+#'   return(masterData)
+#' }

@@ -41,13 +41,13 @@ delDeviceData<-DelDeviceProcess(exelFilePath="./inst/excels/Device2019.10.1.xlsx
                           materialName = "재 질",
                           KoreanDictFile="./inst/csv/tmt_Eng_Kor_translation_ANSI.csv")
 
-masterData <- UploadProcess(dbms<-"sql server",
-                        user<-"ycseong07",
-                        password<-"zmffhqj1!",
-                        server<-"128.1.99.58",
-                        schema <- 'ediToOmop.dbo'
-
-)
+# masterData <- UploadProcess(dbmsName<-"sql server",
+#                         userName<-"ycseong07",
+#                         passwordName<-"zmffhqj1!",
+#                         serverName<-"128.1.99.58",
+#                         schemaName <- 'ediToOmop.dbo'
+#
+# )
 
 
 #### update ####

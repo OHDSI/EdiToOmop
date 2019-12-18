@@ -4,9 +4,17 @@
 \alias{NewDrugProcess}
 \title{Pre-processing for DRUG}
 \usage{
-NewDrugProcess(exelFilePath, sheetName = NULL, drugData = NULL,
-  drugCode, drugName, clinicalDrugcode, drugDosage, drugDosageUnit,
-  previousConceptCode)
+NewDrugProcess(
+  exelFilePath,
+  sheetName = NULL,
+  drugData = NULL,
+  drugCode,
+  drugName,
+  clinicalDrugcode,
+  drugDosage,
+  drugDosageUnit,
+  previousConceptCode
+)
 }
 \arguments{
 \item{exelFilePath}{file path for the excel file.}

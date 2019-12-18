@@ -4,8 +4,16 @@
 \alias{NewSugaProcess}
 \title{Pre-processing for SUGA}
 \usage{
-NewSugaProcess(exelFilePath, sheetName, sugaData = NULL, sugaCode,
-  KoreanName, EnglishName, startDateName, sanjungName)
+NewSugaProcess(
+  exelFilePath,
+  sheetName,
+  sugaData = NULL,
+  sugaCode,
+  KoreanName,
+  EnglishName,
+  startDateName,
+  sanjungName
+)
 }
 \arguments{
 \item{exelFilePath}{file path for the excel file.}

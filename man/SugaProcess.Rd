@@ -4,9 +4,17 @@
 \alias{SugaProcess}
 \title{Pre-processing for SUGA}
 \usage{
-SugaProcess(exelFilePath, sheetName, sugaData = NULL, sugaCode,
-  KoreanName, EnglishName, startDateName, sanjungName,
-  KoreanDictFile = "./inst/csv/suga_Eng_Kor_translation_ANSI.csv")
+SugaProcess(
+  exelFilePath,
+  sheetName,
+  sugaData = NULL,
+  sugaCode,
+  KoreanName,
+  EnglishName,
+  startDateName,
+  sanjungName,
+  KoreanDictFile = "./inst/csv/suga_Eng_Kor_translation_ANSI.csv"
+)
 }
 \arguments{
 \item{exelFilePath}{file path for the excel file.}

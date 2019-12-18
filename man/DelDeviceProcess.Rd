@@ -4,9 +4,16 @@
 \alias{DelDeviceProcess}
 \title{Pre-processing for DEVICE deleted in 2019.10}
 \usage{
-DelDeviceProcess(exelFilePath, sheetName, materialData = NULL,
-  deviceCode, deviceName, endDateName, materialName,
-  KoreanDictFile = "./inst/csv/tmt_Eng_Kor_translation_ANSI.csv")
+DelDeviceProcess(
+  exelFilePath,
+  sheetName,
+  materialData = NULL,
+  deviceCode,
+  deviceName,
+  endDateName,
+  materialName,
+  KoreanDictFile = "./inst/csv/tmt_Eng_Kor_translation_ANSI.csv"
+)
 }
 \arguments{
 \item{exelFilePath}{file path for the excel file.}

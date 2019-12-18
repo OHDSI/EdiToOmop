@@ -4,9 +4,16 @@
 \alias{DeviceProcess}
 \title{Pre-processing for DEVICE}
 \usage{
-DeviceProcess(exelFilePath, sheetName, materialData = NULL, deviceCode,
-  deviceName, startDateName, materialName,
-  KoreanDictFile = "./inst/csv/tmt_Eng_Kor_translation_ANSI.csv")
+DeviceProcess(
+  exelFilePath,
+  sheetName,
+  materialData = NULL,
+  deviceCode,
+  deviceName,
+  startDateName,
+  materialName,
+  KoreanDictFile = "./inst/csv/tmt_Eng_Kor_translation_ANSI.csv"
+)
 }
 \arguments{
 \item{exelFilePath}{file path for the excel file.}

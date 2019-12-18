@@ -4,8 +4,16 @@
 \alias{NewDelDeviceProcess}
 \title{Pre-processing for DEVICE deleted in 2019.10}
 \usage{
-NewDelDeviceProcess(exelFilePath, sheetName, materialData = NULL,
-  deviceCode, deviceName, endDateName, materialName, delMonth)
+NewDelDeviceProcess(
+  exelFilePath,
+  sheetName,
+  materialData = NULL,
+  deviceCode,
+  deviceName,
+  endDateName,
+  materialName,
+  delMonth
+)
 }
 \arguments{
 \item{exelFilePath}{file path for the excel file.}
