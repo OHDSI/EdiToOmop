@@ -95,6 +95,9 @@ DeviceProcess<-function(exelFilePath,
   matDf$conceptName<-gsub("\\r\n","",matDf$conceptName)
   matDf$conceptSynonym<-gsub("\\r\n","",matDf$conceptSynonym)
 
+  #remove concepts starting after 2019.10.
+  matDf<-matDf[matDf$validStartDate < as.Date("2019-11-01"),]
+
   #remove unnecessary columns
   matDf<-matDf[c("conceptCode", "conceptName", "conceptSynonym", "domainId", "vocabularyId", "conceptClassId",
                  "validStartDate", "validEndDate", "invalidReason","ancestorConceptCode","previousConceptCode",
@@ -393,7 +396,7 @@ DelDeviceProcess<-function(exelFilePath,
   return(matDelDf)
 }
 
-uploadProcess<-function(dbms,
+UploadProcess<-function(dbms,
                         user,
                         password,
                         server,
@@ -402,6 +405,7 @@ uploadProcess<-function(dbms,
 
   masterData<-rbind(sugaData, drugData, deviceData, DelDeviceData)
 
+  ## upload to DB
   connectionDetail <- DatabaseConnector::createConnectionDetails(
     dbms=dbms,
     user=user,
@@ -422,6 +426,7 @@ uploadProcess<-function(dbms,
                                  progressBar = TRUE,
                                  useMppBulkLoad = FALSE)
 
+  ## writing CSV file
   write.csv(masterData,file="./inst/master_data.csv", fileEncoding="UTF-8")
 
   return(masterData)
