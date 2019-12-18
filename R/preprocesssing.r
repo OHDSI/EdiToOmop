@@ -36,7 +36,7 @@ DeviceProcess<-function(exelFilePath,
                         deviceName,
                         startDateName,
                         materialName,
-                        KoreanDictFile="./inst/csv/tmt_Eng_Kor_translation.csv"
+                        KoreanDictFile="./inst/csv/tmt_Eng_Kor_translation_ANSI.csv"
 ){
   if(is.null(materialData)){
     matData <- readxl::read_excel(exelFilePath,
@@ -89,7 +89,7 @@ DeviceProcess<-function(exelFilePath,
     if(!length(unique(dict$conceptSynonym)) == length(dict$conceptSynonym)) stop ("Korean names in the dictionary should be unique")
     matDf <- merge(matDf,dict,by= "conceptSynonym", all.x = TRUE, all.y = FALSE)
 
-    matDf$conceptName <- ifelse(is.na(matDf$conceptName), matDf$conceptNameTr,matDf$conceptName)
+    matDf$conceptName <- ifelse(!is.na(matDf$conceptNameTr), matDf$conceptNameTr,matDf$conceptName)
   }
   #remove \r\n
   matDf$conceptName<-gsub("\\r\n","",matDf$conceptName)
@@ -127,7 +127,7 @@ SugaProcess<-function(exelFilePath,
                       EnglishName,
                       startDateName,
                       sanjungName,
-                      KoreanDictFile="./inst/csv/suga_Eng_Kor_translation.csv"
+                      KoreanDictFile="./inst/csv/suga_Eng_Kor_translation_ANSI.csv"
 ){
   if(is.null(sugaData)){
     sugaData <- readxl::read_excel(exelFilePath,
@@ -232,7 +232,7 @@ SugaProcess<-function(exelFilePath,
 #'
 #' @export
 #'
-drugProcess<-function(exelFilePath,
+DrugProcess<-function(exelFilePath,
                       sheetName=NULL,
                       drugData=NULL,
                       drugCode,
@@ -296,4 +296,133 @@ drugProcess<-function(exelFilePath,
                    "material", "dosage", "dosageUnit","sanjungName")]
 
   return(bdgDf)
+}
+
+#' Pre-processing for DEVICE deleted in 2019.10
+#'
+#' @details
+#' Pre-processing for the Excel EDI file
+#'
+#' @param exelFilePath    file path for the excel file.
+#' @param sheetName       A sheet name of interest.
+#' @param materialData    Prepared material data. Default is NULL.
+#' @param deviceCode      A column name for device EDI code.
+#' @param deviceName      A column name for device.
+#' @param enddateName     A column name for deleted date.
+#' @param materialName    A column name for the material of device.
+#' @param KoreanDictFile  Path for csv file containing translation between Korean and English. If you don't want to translate, please set this value as NULL
+#'
+#' @export
+#'
+#'
+
+DelDeviceProcess<-function(exelFilePath,
+                           sheetName,
+                           materialData=NULL,
+                           deviceCode,
+                           deviceName,
+                           endDateName,
+                           materialName,
+                           KoreanDictFile="./inst/csv/tmt_Eng_Kor_translation_ANSI.csv"
+){
+  if(is.null(materialData)){
+    matData <- readxl::read_excel(exelFilePath,
+                                  sheet=sheetName,
+                                  col_names = TRUE)
+  }
+
+  #colnames(sugaData)<-SqlRender::snakeCaseToCamelCase(colnames(sugaData))
+
+  conceptCode<-matData[,deviceCode]
+  names(conceptCode)<-"conceptCode"
+
+  conceptName<-matData[,deviceName]
+  names(conceptName)<-"conceptName"
+
+  conceptSynonym<-matData[,deviceName]
+  names(conceptSynonym)<-"conceptSynonym"
+
+  endDate<-dplyr::pull(matData, endDateName)
+
+  material<-matData[,materialName]
+  names(material)<-"material"
+
+  matDelDf<-data.frame(conceptCode= conceptCode,
+                    conceptName=conceptName,
+                    conceptSynonym=conceptSynonym,
+                    domainId = "Device",
+                    vocabularyId = "Korean EDI",
+                    conceptClassId = "Therapeutic Materials",
+                    validStartDate = "1970-01-01",
+                    validEndDate = ifelse( is.na(endDate),"2099-12-31", as.character(endDate)),
+                    invalidReason = NA,
+                    ancestorConceptCode=NA,
+                    previousConceptCode=NA,
+                    material=material,
+                    dosage=NA,
+                    dosageUnit=NA,
+                    sanjungName = NA,
+                    stringsAsFactors=FALSE
+  )
+
+  matDelDf$validStartDate<-lubridate::as_date(matDelDf$validStartDate)
+  matDelDf$validEndDate<-lubridate::as_date(matDelDf$validEndDate)
+
+  if(!is.null(KoreanDictFile)) {
+    dict<- read.csv(KoreanDictFile, stringsAsFactors= FALSE)
+    colnames(dict)[grepl("conceptName",colnames(dict))] <- "conceptNameTr"
+    if(!length(unique(dict$conceptSynonym)) == length(dict$conceptSynonym)) stop ("Korean names in the dictionary should be unique")
+    matDelDf <- merge(matDelDf,dict,by= "conceptSynonym", all.x = TRUE, all.y = FALSE)
+
+    matDelDf$conceptName <- ifelse(!is.na(matDelDf$conceptNameTr), matDelDf$conceptNameTr,matDelDf$conceptName)
+  }
+  #remove \r\n
+  matDelDf$conceptName<-gsub("\\r\n","",matDelDf$conceptName)
+  matDelDf$conceptSynonym<-gsub("\\r\n","",matDelDf$conceptSynonym)
+
+  #remove unnecessary columns
+  matDelDf<-matDelDf[c("conceptCode", "conceptName", "conceptSynonym", "domainId", "vocabularyId", "conceptClassId",
+                 "validStartDate", "validEndDate", "invalidReason","ancestorConceptCode","previousConceptCode",
+                 "material", "dosage", "dosageUnit","sanjungName")]
+
+  matDelDf<-subset(matDelDf, is.na(matDelDf$validEndDate)==FALSE)
+  matDelDf$validEndDate<-as.character(as.Date(matDelDf$validEndDate)+lubridate::days(-1))
+  matDelDf<-subset(matDelDf, validEndDate=="2019-09-30" )
+
+
+  return(matDelDf)
+}
+
+uploadProcess<-function(dbms,
+                        user,
+                        password,
+                        server,
+                        schema
+){
+
+  masterData<-rbind(sugaData, drugData, deviceData, DelDeviceData)
+
+  connectionDetail <- DatabaseConnector::createConnectionDetails(
+    dbms=dbms,
+    user=user,
+    schema = schema,
+    password=password,
+    server=server
+  )
+
+  con <- DatabaseConnector::connect(connectionDetail)
+
+
+  DatabaseConnector::insertTable(connection = con,
+                                 tableName = "OMOP_CDM_Vocab",
+                                 data = masterData,
+                                 dropTableIfExists = TRUE,
+                                 createTable = TRUE,
+                                 tempTable = FALSE,
+                                 progressBar = TRUE,
+                                 useMppBulkLoad = FALSE)
+
+  write.csv(masterData,file="./inst/master_data.csv", fileEncoding="UTF-8")
+
+  return(masterData)
 }

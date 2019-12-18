@@ -6,7 +6,7 @@ deviceData<-DeviceProcess(exelFilePath="./inst/excels/Device2019.10.1.xlsx",
                           deviceName = "품 명",
                           startDateName="적용일자",
                           materialName = "재 질",
-                          KoreanDictFile="./inst/csv/tmt_Eng_Kor_translation.csv")
+                          KoreanDictFile="./inst/csv/tmt_Eng_Kor_translation_ANSI.csv")
 
 sugaData <- SugaProcess(exelFilePath = "./inst/excels/Suga2019.10.1.xlsx",
                         sheetName = "의치과_급여_전체",
@@ -16,10 +16,10 @@ sugaData <- SugaProcess(exelFilePath = "./inst/excels/Suga2019.10.1.xlsx",
                         EnglishName = "영문명",
                         startDateName = "적용일자",
                         sanjungName = "산정명칭",
-                        KoreanDictFile="./inst/csv/suga_Eng_Kor_translation.csv"
+                        KoreanDictFile="./inst/csv/suga_Eng_Kor_translation_ANSI.csv"
 )
 
-drugData<-drugProcess(exelFilePath = "./inst/excels/Drug2019.10.1.xlsx",
+drugData<-DrugProcess(exelFilePath = "./inst/excels/Drug2019.10.1.xlsx",
                       sheetName=NULL,
                       drugData=NULL,
                       drugCode = "제품코드",
@@ -28,3 +28,22 @@ drugData<-drugProcess(exelFilePath = "./inst/excels/Drug2019.10.1.xlsx",
                       drugDosage = "규격",
                       drugDosageUnit = "단위",
                       previousConceptCode = "목록정비전코드")
+
+DelDeviceData<-DelDeviceProcess(exelFilePath="./inst/excels/Device2019.10.1.xlsx",
+                          sheetName = "삭제 및 삭제예정 품목",
+                          materialData=NULL,
+                          deviceCode = "코 드",
+                          deviceName = "품 명",
+                          endDateName="적용일자",
+                          materialName = "재 질",
+                          KoreanDictFile="./inst/csv/tmt_Eng_Kor_translation_ANSI.csv")
+
+masterCSV <- uploadProcess(dbms<-"sql server",
+                        user<-"ycseong07",
+                        password<-"zmffhqj1!",
+                        server<-"128.1.99.58",
+                        schema <- 'ediToOmop.dbo'
+
+)
+
+
