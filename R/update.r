@@ -376,30 +376,30 @@ return(newDf)
 
 }
 
-#' creating Existing Data Table
+#' #' creating Existing Data Table
+#' #'
+#' #' @details
+#' #' importing Existing Data Tables from DB
+#' #'
+#' #' @export
+#' #'
+#' ImportingProcess<-function(){
 #'
-#' @details
-#' importing Existing Data Tables from DB
+#'   connectionDetail <- DatabaseConnector::createConnectionDetails(
+#'     dbms=dbms,
+#'     user=user,
+#'     schema = schema,
+#'     password=password,
+#'     server=server
+#'   )
 #'
-#' @export
+#'   con <- DatabaseConnector::connect(connectionDetail)
 #'
-ImportingProcess<-function(){
-
-  connectionDetail <- DatabaseConnector::createConnectionDetails(
-    dbms=dbms,
-    user=user,
-    schema = schema,
-    password=password,
-    server=server
-  )
-
-  con <- DatabaseConnector::connect(connectionDetail)
-
-  exDf <- DatabaseConnector::querySql(con,'SELECT * FROM OMOP_CDM_Vocab')
-
-
-  return(exDf)
-
-}
+#'   exDf <- DatabaseConnector::querySql(con,'SELECT * FROM OMOP_CDM_Vocab')
+#'
+#'
+#'   return(exDf)
+#'
+#' }
 
 
