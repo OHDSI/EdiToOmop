@@ -81,6 +81,25 @@ DeviceProcess<-function(exelFilePath,
   matDf$validStartDate<-lubridate::as_date(matDf$validStartDate)
   matDf$validEndDate<-lubridate::as_date(matDf$validEndDate)
 
+  if(!is.null(KoreanDictFile)) {
+    #nrow(sugaDf2) #270413
+    #translation for concept name
+    dict<- read.csv(KoreanDictFile, stringsAsFactors= FALSE)
+    colnames(dict)[grepl("conceptName",colnames(dict))] <- "conceptNameTr"
+    if(!length(unique(dict$conceptSynonym)) == length(dict$conceptSynonym)) stop ("Korean names in the dictionary should be unique")
+    matDf <- merge(matDf,dict,by= "conceptSynonym", all.x = TRUE, all.y = FALSE)
+
+    matDf$conceptName <- ifelse(is.na(matDf$conceptName), matDf$conceptNameTr,matDf$conceptName)
+  }
+  #remove \r\n
+  matDf$conceptName<-gsub("\\r\n","",matDf$conceptName)
+  matDf$conceptSynonym<-gsub("\\r\n","",matDf$conceptSynonym)
+
+  #remove unnecessary columns
+  matDf<-matDf[c("conceptCode", "conceptName", "conceptSynonym", "domainId", "vocabularyId", "conceptClassId",
+                 "validStartDate", "validEndDate", "invalidReason","ancestorConceptCode","previousConceptCode",
+                 "material", "dosage", "dosageUnit","sanjungName")]
+
   return(matDf)
 }
 
@@ -146,6 +165,9 @@ SugaProcess<-function(exelFilePath,
                        sanjungName = sanjungName,
                        stringsAsFactors=FALSE)
 
+  sugaDf$validStartDate<-lubridate::as_date(sugaDf$validStartDate)
+  sugaDf$validEndDate<-lubridate::as_date(sugaDf$validEndDate)
+
   #If ancestor is identical to concpet code, then remove the ancestor code
   sugaDf$ancestorConceptCode[sugaDf$ancestorConceptCode==sugaDf$conceptCode] <- NA
 
@@ -198,18 +220,80 @@ SugaProcess<-function(exelFilePath,
 #' @details
 #' Pre-processing for the Excel EDI file
 #'
-#' @param exelFilePath    file path for the excel file.
-#' @param sheetName       A sheet name of interest.
-#' @param sugaData        Prepared material data. Default is NULL.
-#' @param sugaCode        A column name for device EDI code.
-#' @param KoreanName      A column name for device.
-#' @param EnglishName     A column name for device.
-#' @param startDateName   A column name for start date.
-#' @param sanjungName     A column name for the material of device.
-#' @param KoreanDict      A csv file translating between Korean and English
+#' @param exelFilePath        file path for the excel file.
+#' @param sheetName           A sheet name of interest. Sheet name for drug is usally NULL (default is NULL)
+#' @param drugData            Prepared material data. Default is NULL.
+#' @param drugCode            A column name for drug EDI code.
+#' @param drugName            A column name for drug
+#' @param clinicalDrugcode    A column name for clinical drug code
+#' @param drugDosage          A column name for drug dosage.
+#' @param drugDosageUnit      A column name for drug dosage unit.
+#' @param previousConceptCode        A column name for previous code
 #'
 #' @export
 #'
-drugEdiProcess<-function(){
+drugProcess<-function(exelFilePath,
+                      sheetName=NULL,
+                      drugData=NULL,
+                      drugCode,
+                      drugName,
+                      clinicalDrugcode,
+                      drugDosage,
+                      drugDosageUnit,
+                      previousConceptCode){
+  if(is.null(drugData)){
+    drugData <- readxl::read_excel(exelFilePath,
+                                   sheet = sheetName,
+                                   col_names = TRUE)
+  }
 
+  #colnames(sugaData)<-SqlRender::snakeCaseToCamelCase(colnames(sugaData))
+
+  conceptCode <- dplyr::pull(drugData, drugCode)
+  ancestorConceptCode <- dplyr::pull(drugData, clinicalDrugcode)
+  previousConceptCode <- dplyr::pull(drugData, previousConceptCode)
+  drugDosage <- dplyr::pull(drugData, drugDosage)
+  drugDosageUnit <- dplyr::pull(drugData, drugDosageUnit)
+  conceptSynonym <- dplyr::pull(drugData, drugName)
+
+  mdcDf <- data.frame(conceptCode = conceptCode,
+                      conceptName = conceptCode,
+                      conceptSynonym = conceptSynonym,
+                      domainId = "Drug",
+                      vocabularyId = "Korean EDI",
+                      conceptClassId = "Branded Drug",
+                      validStartDate = "1970-01-01",
+                      validEndDate = "2099-12-31",
+                      invalidReason = NA,
+                      ancestorConceptCode = ancestorConceptCode,
+                      previousConceptCode = previousConceptCode,
+                      material=NA,
+                      dosage = drugDosage,
+                      dosageUnit = drugDosageUnit,
+                      sanjungName = NA,
+                      stringsAsFactors=FALSE
+  )
+
+  #Distinguish Clinical Drug from Branded Drug
+  mdcDf$vocabularyId[is.na(mdcDf$conceptSynonym)] <- "KDC"
+  mdcDf$conceptClassId[mdcDf$vocabularyId=="KDC"] <- "Clinical Drug"
+
+  kdcDf<-mdcDf[mdcDf$vocabularyId=="KDC",]
+
+  drugNameDf <- kdcDf[c("conceptName", "ancestorConceptCode")]
+  #paste drug names for the same clinical drug (composite drug)
+  drugNameDf <- aggregate(conceptName ~ ancestorConceptCode, data = drugNameDf, paste, collapse = ",")
+
+  #Only Branded Drugs of EDI
+  bdgDf <- mdcDf[mdcDf$vocabularyId=="Korean EDI",]
+  bdgDf$conceptName <- NULL
+
+  #Set the name of Branded Drug as Clinical Drug Names
+  bdgDf <- merge(bdgDf,drugNameDf, by = "ancestorConceptCode", all.x= TRUE, all.y = FALSE)
+
+  bdgDf <- bdgDf[c("conceptCode", "conceptName", "conceptSynonym", "domainId", "vocabularyId", "conceptClassId",
+                   "validStartDate", "validEndDate", "invalidReason","ancestorConceptCode","previousConceptCode",
+                   "material", "dosage", "dosageUnit","sanjungName")]
+
+  return(bdgDf)
 }

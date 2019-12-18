@@ -4,9 +4,9 @@
 \alias{DeviceProcess}
 \title{Pre-processing for DEVICE}
 \usage{
-DeviceProcess(exelFilePath, sheetName = "", materialData = NULL,
-  deviceCode = "", deviceName = "", startDateName = "",
-  materialName = "")
+DeviceProcess(exelFilePath, sheetName, materialData = NULL, deviceCode,
+  deviceName, startDateName, materialName,
+  KoreanDictFile = "./inst/csv/tmt_Eng_Kor_translation.csv")
 }
 \arguments{
 \item{exelFilePath}{file path for the excel file.}
@@ -20,6 +20,8 @@ DeviceProcess(exelFilePath, sheetName = "", materialData = NULL,
 \item{deviceName}{A column name for device.}
 
 \item{materialName}{A column name for the material of device.}
+
+\item{KoreanDictFile}{Path for csv file containing translation between Korean and English. If you don't want to translate, please set this value as NULL}
 
 \item{dateName}{A column name for start date.}
 }

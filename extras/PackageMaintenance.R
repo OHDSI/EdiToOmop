@@ -1,1 +1,1 @@
-roxygen2::roxygenise()
+roxygen2::roxygenize()
