@@ -156,7 +156,7 @@ SugaProcess<-function(exelFilePath,
                        conceptSynonym=conceptSynonym,
                        domainId = "Procedure",
                        vocabularyId = "Korean EDI",
-                       conceptClassId = "Procedure",
+                       conceptClassId = "Procedure Hierarchy",
                        validStartDate = ifelse( is.na(startDate),"1970-01-01", as.character(startDate)),
                        validEndDate = "2099-12-31",
                        invalidReason = NA,
@@ -184,10 +184,10 @@ SugaProcess<-function(exelFilePath,
                     grepl("^FA",sugaDf$conceptCode) ] <- "Measurement"
 
   ##Set concept class ID
-  sugaDf$conceptClassId[nchar(sugaDf$conceptCode)>nchar(sugaDf$ancestorConceptCode)] <- "Procedure Details"
+  sugaDf$conceptClassId[nchar(sugaDf$conceptCode)>nchar(sugaDf$ancestorConceptCode)] <- "Procedure code"
 
-  sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Procedure")] <- "Measurement"
-  sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Procedure Details")] <- "Measurement Details"
+  sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Procedure Hierarchy")] <- "Measurement Hierarchy"
+  sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Procedure code")] <- "Measurement code"
 
   if(!is.null(KoreanDictFile)) {
     #nrow(sugaDf2) #270413

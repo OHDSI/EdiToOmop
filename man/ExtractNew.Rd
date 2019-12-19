@@ -2,13 +2,15 @@
 % Please edit documentation in R/update.r
 \name{ExtractNew}
 \alias{ExtractNew}
-\title{Extract new concept data}
+\title{creating Existing Data Table}
 \usage{
 ExtractNew()
 }
 \description{
-Extract new concept data
+creating Existing Data Table
 }
 \details{
-Extract new concept data
+importing Existing Data Tables from DB
+
+Extract new concepts..
 }

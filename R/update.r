@@ -25,7 +25,7 @@
 #' @param deviceCode      A column name for device EDI code.
 #' @param deviceName      A column name for device.
 #' @param dateName        A column name for start date.
-#' @param materialName        A column name for the material of device.
+#' @param materialName    A column name for the material of device.
 #'
 #' @export
 
@@ -360,6 +360,7 @@ NewDelDeviceProcess<-function(exelFilePath,
   return(matDelDf)
 }
 
+
 #' creating new Data Table
 #'
 #' @details
@@ -370,19 +371,20 @@ NewDelDeviceProcess<-function(exelFilePath,
 
 CreatingNewTable<-function(){
 
-newDf<-rbind(newDeviceData, newSugaData, newDrugData, newDelDeviceData)
+  newDf<-rbind(newDeviceData, newSugaData, newDrugData, newDelDeviceData)
 
-return(newDf)
+  return(newDf)
 
 }
 
-#' #' creating Existing Data Table
-#' #'
-#' #' @details
-#' #' importing Existing Data Tables from DB
-#' #'
-#' #' @export
-#' #'
+
+#' creating Existing Data Table
+#'
+#' @details
+#' importing Existing Data Tables from DB
+#'
+#' @export
+#'
 #' ImportingProcess<-function(){
 #'
 #'   connectionDetail <- DatabaseConnector::createConnectionDetails(
@@ -403,3 +405,42 @@ return(newDf)
 #' }
 
 
+#' Extract new concepts
+#'
+#' @details
+#' Extract new concepts..
+#'
+#' @export
+#'
+
+ExtractNew<-function(){
+
+  ## new concepts list
+  newConceptList<-dplyr::anti_join(newData, exData, by=conceptCode)
+  newConceptList$validStartDate<- as.Date("2019-11-01")
+
+  write.csv(newConceptList,file="./inst/newConceptList.csv", fileEncoding="UTF-8")
+
+  return(newConceptList)
+
+}
+
+#' Extract deleted concepts
+#'
+#' @details
+#' Extract deleted concepts..
+#'
+#' @export
+#'
+ExtractDel<-function(){
+
+  ## deleted concepts list
+  deleltedConceptList<-dplyr::anti_join(exData, newData, by=conceptCode)
+  deleltedConceptList$validEndDate <- as.Date("2019-10-31")
+  deleltedConceptList$invalidReason <- "D"
+
+  write.csv(deleltedConceptList,file="./inst/deleltedConceptList.csv", fileEncoding="UTF-8")
+
+  return(deleltedConceptList)
+
+}

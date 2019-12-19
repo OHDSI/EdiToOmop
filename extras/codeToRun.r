@@ -96,11 +96,15 @@ newDelDeviceData <- NewDelDeviceProcess(exelFilePath="./inst/excels/Device2019.1
 newData<-CreatingNewTable()
 
 
-exData <- ImportingProcess(dbms<-"sql server",
-                              user<-"ycseong07",
-                              password<-"zmffhqj1!",
-                              server<-"128.1.99.58",
-                              schema <- 'ediToOmop.dbo'
+# exData <- ImportingProcess(dbms<-"sql server",
+#                               user<-"ycseong07",
+#                               password<-"zmffhqj1!",
+#                               server<-"128.1.99.58",
+#                               schema <- 'ediToOmop.dbo'
+#
+# )
 
-)
+newConcept <- ExtractNew()
+
+deletedConcept <- ExtractDel()
 
