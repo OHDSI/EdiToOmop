@@ -2,10 +2,11 @@
 The package to convert Korean EDI code to the OMOP vocabulary
 
 
-##HOW TO RUN
+## HOW TO RUN
 
 ### Preprocessing for the EDI codes
 ```
+devtools::install_github("ABMI/EdiToOmop")
 library(EdiToOmop)
 
 ##Environment Settings
@@ -48,11 +49,11 @@ drugData<-EdiToOmop::DrugProcess(exelFilePath = "./inst/excels/Drug2019.10.1.xls
                                  previousConceptCode = "목록정비전코드")
 
 ediData=rbind(deviceData,sugaData,drugData)
-
+```
 
 ### Insert EDI codes into the database or export them as csv file
 
-
+```
 #Be careful! This function will remove the table(tableName) and re-generate it.
 EdiToOmop::GenerateEdiVocaTable(ediData = ediData,
                                 connectionDetails = connectionDetails,
@@ -64,12 +65,11 @@ EdiToOmop::GenerateEdiVocaTable(ediData = ediData,
 EdiToOmop::CreateCsv(ediData = ediData,
           filePath = "./inst/EdiData/EdiData.csv"
 )
-
+```
 
 ### Update
 
-
-
+```
 newDeviceData<-EdiToOmop::DeviceProcess(exelFilePath="./inst/excels/Device2019.11.1.xlsx",
                                         sheetName = "급여품목(인체조직포함)",
                                         materialData=NULL,
