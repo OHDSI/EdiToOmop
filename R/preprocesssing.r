@@ -65,9 +65,9 @@ DeviceProcess<-function(exelFilePath,
                     conceptSynonym=conceptSynonym,
                     domainId = "Device",
                     vocabularyId = "Korean EDI",
-                    conceptClassId = "Therapeutic Materials",
-                    validStartDate = ifelse( is.na(startDate),"1970-01-01", as.character(startDate)),
-                    validEndDate = "2099-12-31",
+                    conceptClassId = "Device",
+                    validStartDate = ifelse( is.na(startDate),as.Date("1970-01-01"),as.Date(as.character(startDate))),
+                    validEndDate = as.Date("2099-12-31"),
                     invalidReason = NA,
                     ancestorConceptCode=NA,
                     previousConceptCode=NA,
@@ -156,9 +156,9 @@ SugaProcess<-function(exelFilePath,
                        conceptSynonym=conceptSynonym,
                        domainId = "Procedure",
                        vocabularyId = "Korean EDI",
-                       conceptClassId = "Procedure Hierarchy",
-                       validStartDate = ifelse( is.na(startDate),"1970-01-01", as.character(startDate)),
-                       validEndDate = "2099-12-31",
+                       conceptClassId = "Proc Hierarchy",
+                       validStartDate = ifelse( is.na(startDate),as.Date("1970-01-01"), as.Date(as.character(startDate))),
+                       validEndDate = as.Date("2099-12-31"),
                        invalidReason = NA,
                        ancestorConceptCode=ancestorConceptCode,
                        previousConceptCode=NA,
@@ -184,10 +184,10 @@ SugaProcess<-function(exelFilePath,
                     grepl("^FA",sugaDf$conceptCode) ] <- "Measurement"
 
   ##Set concept class ID
-  sugaDf$conceptClassId[nchar(sugaDf$conceptCode)>nchar(sugaDf$ancestorConceptCode)] <- "Procedure code"
+  sugaDf$conceptClassId[nchar(sugaDf$conceptCode)>nchar(sugaDf$ancestorConceptCode)] <- "Proc code"
 
-  sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Procedure Hierarchy")] <- "Measurement Hierarchy"
-  sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Procedure code")] <- "Measurement code"
+  sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Proc Hierarchy")] <- "Meas Hierarchy"
+  sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Proc code")] <- "Meas code"
 
   if(!is.null(KoreanDictFile)) {
     #nrow(sugaDf2) #270413
@@ -265,13 +265,13 @@ DrugProcess<-function(exelFilePath,
                       domainId = "Drug",
                       vocabularyId = "Korean EDI",
                       conceptClassId = "Branded Drug",
-                      validStartDate = "1970-01-01",
-                      validEndDate = "2099-12-31",
+                      validStartDate = as.Date("1970-01-01"),
+                      validEndDate = as.Date("2099-12-31"),
                       invalidReason = NA,
                       ancestorConceptCode = ancestorConceptCode,
                       previousConceptCode = previousConceptCode,
                       material=NA,
-                      dosage = drugDosage,
+                      dosage = as.numeric(drugDosage),
                       dosageUnit = drugDosageUnit,
                       sanjungName = NA,
                       stringsAsFactors=FALSE
@@ -301,149 +301,7 @@ DrugProcess<-function(exelFilePath,
   return(bdgDf)
 }
 
-#' Pre-processing for DEVICE deleted in 2019.10
-#'
-#' @details
-#' Pre-processing for the Excel EDI file
-#'
-#' @param exelFilePath    file path for the excel file.
-#' @param sheetName       A sheet name of interest.
-#' @param materialData    Prepared material data. Default is NULL.
-#' @param deviceCode      A column name for device EDI code.
-#' @param deviceName      A column name for device.
-#' @param enddateName     A column name for deleted date.
-#' @param materialName    A column name for the material of device.
-#' @param KoreanDictFile  Path for csv file containing translation between Korean and English. If you don't want to translate, please set this value as NULL
-#'
-#' @export
-#'
-#'
-
-DelDeviceProcess<-function(exelFilePath,
-                           sheetName,
-                           materialData=NULL,
-                           deviceCode,
-                           deviceName,
-                           endDateName,
-                           materialName,
-                           KoreanDictFile="./inst/csv/tmt_Eng_Kor_translation_ANSI.csv"
-){
-  if(is.null(materialData)){
-    matData <- readxl::read_excel(exelFilePath,
-                                  sheet=sheetName,
-                                  col_names = TRUE)
-  }
-
-  #colnames(sugaData)<-SqlRender::snakeCaseToCamelCase(colnames(sugaData))
-
-  conceptCode<-matData[,deviceCode]
-  names(conceptCode)<-"conceptCode"
-
-  conceptName<-matData[,deviceName]
-  names(conceptName)<-"conceptName"
-
-  conceptSynonym<-matData[,deviceName]
-  names(conceptSynonym)<-"conceptSynonym"
-
-  endDate<-dplyr::pull(matData, endDateName)
-
-  material<-matData[,materialName]
-  names(material)<-"material"
-
-  matDelDf<-data.frame(conceptCode= conceptCode,
-                    conceptName=conceptName,
-                    conceptSynonym=conceptSynonym,
-                    domainId = "Device",
-                    vocabularyId = "Korean EDI",
-                    conceptClassId = "Therapeutic Materials",
-                    validStartDate = "1970-01-01",
-                    validEndDate = ifelse( is.na(endDate),"2099-12-31", as.character(endDate)),
-                    invalidReason = NA,
-                    ancestorConceptCode=NA,
-                    previousConceptCode=NA,
-                    material=material,
-                    dosage=NA,
-                    dosageUnit=NA,
-                    sanjungName = NA,
-                    stringsAsFactors=FALSE
-  )
-
-  matDelDf$validStartDate<-lubridate::as_date(matDelDf$validStartDate)
-  matDelDf$validEndDate<-lubridate::as_date(matDelDf$validEndDate)
-
-  if(!is.null(KoreanDictFile)) {
-    dict<- read.csv(KoreanDictFile, stringsAsFactors= FALSE)
-    colnames(dict)[grepl("conceptName",colnames(dict))] <- "conceptNameTr"
-    if(!length(unique(dict$conceptSynonym)) == length(dict$conceptSynonym)) stop ("Korean names in the dictionary should be unique")
-    matDelDf <- merge(matDelDf,dict,by= "conceptSynonym", all.x = TRUE, all.y = FALSE)
-
-    matDelDf$conceptName <- ifelse(!is.na(matDelDf$conceptNameTr), matDelDf$conceptNameTr,matDelDf$conceptName)
-  }
-  #remove \r\n
-  matDelDf$conceptName<-gsub("\\r\n","",matDelDf$conceptName)
-  matDelDf$conceptSynonym<-gsub("\\r\n","",matDelDf$conceptSynonym)
-
-  #remove unnecessary columns
-  matDelDf<-matDelDf[c("conceptCode", "conceptName", "conceptSynonym", "domainId", "vocabularyId", "conceptClassId",
-                 "validStartDate", "validEndDate", "invalidReason","ancestorConceptCode","previousConceptCode",
-                 "material", "dosage", "dosageUnit","sanjungName")]
-
-  matDelDf<-subset(matDelDf, is.na(matDelDf$validEndDate)==FALSE)
-  matDelDf$validEndDate<-as.character(as.Date(matDelDf$validEndDate)+lubridate::days(-1))
-  matDelDf<-subset(matDelDf, validEndDate=="2019-09-30" )
 
 
-  return(matDelDf)
-}
 
-#' #' Upload masterDf to DB
-#' #'
-#' #' @details
-#' #' Upload masterDf to DB
-#' #'
-#' #' @param dbmsName    DB to upload
-#' #' @param userName       user ID
-#' #' @param passwordName    user password
-#' #' @param serverName      server to upload
-#' #' @param schemaName      schema
-#' #'
-#' #' @export
-#' #'
-#'
-#' UploadProcess<-function(dbmsName,
-#'                         userName,
-#'                         passwordName,
-#'                         serverName,
-#'                         schemaName
-#' ){
-#'
-#'   masterData<-rbind(sugaData, drugData, deviceData, delDeviceData)
-#'
-#'   colnames(masterData)<-SqlRender::camelCaseToSnakeCase(colnames(masterData))
-#'
-#'   ## upload to DB
-#'   connectionDetail <- DatabaseConnector::createConnectionDetails(
-#'     dbms=dbmsName,
-#'     user=userName,
-#'     schema=schemaName,
-#'     password=passwordName,
-#'     server=serverName
-#'   )
-#'
-#'   con <- DatabaseConnector::connect(connectionDetail)
-#'
-#'
-#'   DatabaseConnector::insertTable(connection = con,
-#'                                  tableName = "OMOP_CDM_Vocab",
-#'                                  data = masterData,
-#'                                  dropTableIfExists = TRUE,
-#'                                  createTable = TRUE,
-#'                                  tempTable = FALSE,
-#'                                  progressBar = TRUE,
-#'                                  useMppBulkLoad = FALSE)
-#'
-#'   ## writing CSV file
-#'   write.csv(masterData,file="./inst/master_data.csv", fileEncoding="UTF-8")
-#'
-#'   return(masterData)
-#' }
+
