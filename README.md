@@ -70,6 +70,8 @@ EdiToOmop::CreateCsv(ediData = ediData,
 ### Update
 
 ```
+##Create new Device dataframe
+
 newDeviceData<-EdiToOmop::DeviceProcess(exelFilePath="./inst/excels/Device2019.11.1.xlsx",
                                         sheetName = "급여품목(인체조직포함)",
                                         materialData=NULL,
@@ -87,6 +89,7 @@ EdiToOmop::NewEdiUpdate(ediData = newDeviceData,
                         connectionDetails = connectionDetails
 )
 
+##Create new Drug dataframe
 newDrugData<-EdiToOmop::DrugProcess(exelFilePath = "./inst/excels/Drug2019.11.1.xlsx",
                                     sheetName=NULL,
                                     drugData=NULL,
@@ -96,7 +99,7 @@ newDrugData<-EdiToOmop::DrugProcess(exelFilePath = "./inst/excels/Drug2019.11.1.
                                     drugDosage = "규격",
                                     drugDosageUnit = "단위",
                                     previousConceptCode = "목록정비전코드")
-
+###Update the existing table
 
 EdiToOmop::NewEdiUpdate(ediData = newDrugData,
                         startDate = "2019-11-01",
