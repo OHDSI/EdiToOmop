@@ -63,6 +63,8 @@ CreateCsv(ediData = ediData,
 
 #### update ####
 
+##Create new Device dataframe
+
 newDeviceData<-EdiToOmop::DeviceProcess(exelFilePath="./inst/excels/Device2019.11.1.xlsx",
                                         sheetName = "급여품목(인체조직포함)",
                                         materialData=NULL,
@@ -80,6 +82,7 @@ EdiToOmop::NewEdiUpdate(ediData = newDeviceData,
                         connectionDetails = connectionDetails
 )
 
+##Create new Drug dataframe
 newDrugData<-EdiToOmop::DrugProcess(exelFilePath = "./inst/excels/Drug2019.11.1.xlsx",
                                     sheetName=NULL,
                                     drugData=NULL,
@@ -90,6 +93,7 @@ newDrugData<-EdiToOmop::DrugProcess(exelFilePath = "./inst/excels/Drug2019.11.1.
                                     drugDosageUnit = "단위",
                                     previousConceptCode = "목록정비전코드")
 
+##Update the existing table
 
 EdiToOmop::NewEdiUpdate(ediData = newDrugData,
                         startDate = "2019-11-01",
@@ -98,6 +102,7 @@ EdiToOmop::NewEdiUpdate(ediData = newDrugData,
                         connectionDetails = connectionDetails
 )
 
+##Create new Suga dataframe
 newSugaData<-EdiToOmop::SugaProcess(exelFilePath = "./inst/excels/Suga2019.11.1.xlsx",
                                     sheetName = "의·치과_급여_전체",       ##Watch out! the name of the target sheet was changed.
                                     sugaData=NULL,
@@ -108,8 +113,10 @@ newSugaData<-EdiToOmop::SugaProcess(exelFilePath = "./inst/excels/Suga2019.11.1.
                                     sanjungName = "산정명칭",
                                     KoreanDictFile="./inst/csv/suga_Eng_Kor_translation_ANSI.csv"
 )
+
 sum(is.na(newSugaData$conceptName)) #There are concept names not trasnlated into English.
 
+##Update the existing table
 # EdiToOmop::NewEdiUpdate(ediData = newSugaData,
 #                         startDate = "2019-11-01",
 #                         domainIds = c("Procedure", "Measurement"),
