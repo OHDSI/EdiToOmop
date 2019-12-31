@@ -140,7 +140,9 @@ SugaProcess<-function(exelFilePath,
 
   #colnames(mdcData)<-SqlRender::snakeCaseToCamelCase(colnames(mdcData))
   conceptCode <- dplyr::pull(sugaData, sugaCode)
+
   conceptSynonym <- dplyr::pull(sugaData, KoreanName)
+
   conceptName <- dplyr::pull(sugaData, EnglishName)
   startDate <- dplyr::pull(sugaData, startDateName)
   sanjungName <- dplyr::pull(sugaData, sanjungName)
@@ -210,6 +212,10 @@ SugaProcess<-function(exelFilePath,
                                  paste(sugaDf$conceptName,sugaDf$sanjungTr,sep=","),
                                  sugaDf$conceptName)
   }
+
+  ##  add sanjungName in conceptSynonym
+  sugaDf$conceptSynonym<-paste(dplyr::pull(sugaDf, "conceptSynonym"), dplyr::pull(sugaDf, "sanjungName"), sep=", ")
+
   #remove unnecessary columns
   sugaDf<-sugaDf[c("conceptCode", "conceptName", "conceptSynonym", "domainId", "vocabularyId", "conceptClassId",
                    "validStartDate", "validEndDate", "invalidReason","ancestorConceptCode","previousConceptCode",
