@@ -2,12 +2,14 @@
 library(EdiToOmop)
 
 ##Environment Settings
-connectionDetails <- DatabaseConnector::createConnectionDetails(dbms="sql server",
-                                                                user=Sys.getenv("USER_ID"),
-                                                                schema=Sys.getenv("MY_SCHEMA"),
-                                                                password=Sys.getenv("PASSWORD"),
-                                                                server=Sys.getenv("MY_SERVER"))
-vocaTableName = "ediVocaTable" ##Table name for vocabulary
+connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "sql server",
+                                                                server = Sys.getenv("server_ip_17"),
+                                                                schema = Sys.getenv("ediToOmop"),
+                                                                user = Sys.getenv("USER_ID"),
+                                                                password = Sys.getenv("PASSWORD_17")
+)
+
+vocaTableName = "edi_voca_table" ##Table name for vocabulary
 ###########################
 
 
@@ -43,12 +45,14 @@ drugData<-EdiToOmop::DrugProcess(exelFilePath = "./inst/excels/Drug2019.10.1.xls
                                  drugDosageUnit = "단위",
                                  previousConceptCode = "목록정비전코드")
 
-ediData=rbind(deviceData,sugaData,drugData)
+ediData=rbind(deviceData,drugData,sugaData)
+#ediData<-ediData[order(ediData$concept_code),]
 
 max(nchar(ediData$conceptName)) # we will allow lengthy concept name
 
 #We will insert these data into the database.
 #Be careful! This function will remove the table(tableName) and re-generate it.
+
 EdiToOmop::GenerateEdiVocaTable(ediData = ediData,
                                 connectionDetails = connectionDetails,
                                 vocabularyDatabaseSchema = connectionDetails$schema,
@@ -57,8 +61,9 @@ EdiToOmop::GenerateEdiVocaTable(ediData = ediData,
 )
 
 CreateCsv(ediData = ediData,
-          filePath = "./inst/EdiData/EdiData.csv"
+          filePath = "C:/Users/AJOU_MED/Desktop/temp/edi.csv"
 )
+
 
 
 #### update ####

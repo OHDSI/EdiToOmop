@@ -35,8 +35,8 @@ GenerateEdiVocaTable<-function(ediData,
 
   CREATE TABLE @vocabulary_database_schema.@table_name (
   concept_code			  	VARCHAR(50)		NOT NULL ,
-  concept_name			  	VARCHAR(2000)	NOT NULL ,  --Please note that we allowed lengthy concept name
-  concept_synonym       VARCHAR(2000)	NULL,
+  concept_name			  	VARCHAR(MAX)	NOT NULL ,  --Please note that we allowed lengthy concept name
+  concept_synonym       VARCHAR(MAX)	NULL,
   domain_id				      VARCHAR(20)		NOT NULL ,
   vocabulary_id			  	VARCHAR(20)		NOT NULL ,
   concept_class_id			VARCHAR(20)		NOT NULL ,
@@ -45,16 +45,17 @@ GenerateEdiVocaTable<-function(ediData,
   invalid_reason		  	VARCHAR(1)		NULL ,
   ancestor_concept_code VARCHAR(20)		NULL ,
   previous_concept_code VARCHAR(20)		NULL ,
-  material              VARCHAR(1000)  NULL ,
+  material              VARCHAR(2000)  NULL ,
   dosage                FLOAT   		NULL ,
   dosage_unit           VARCHAR(20)		NULL ,
-  sanjung_name          VARCHAR(1000)		NULL
+  sanjung_name          VARCHAR(2000)		NULL
 );
   "
 
   sql <- SqlRender::render(sql,
                            vocabulary_database_schema = vocabularyDatabaseSchema,
                            table_name=tableName)
+
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)
 
   DatabaseConnector::executeSql(conn,sql)
@@ -63,11 +64,12 @@ GenerateEdiVocaTable<-function(ediData,
   DatabaseConnector::insertTable(connection = conn,
                                  tableName = tableName,
                                  data = ediData,
-                                 dropTableIfExists = FALSE,
+                                 dropTableIfExists = T,
                                  createTable = FALSE,
                                  tempTable = FALSE,
                                  progressBar = TRUE,
-                                 useMppBulkLoad = useMppBulkLoadS)
+                                 useMppBulkLoad = useMppBulkLoadS
+                                 )
   # writing CSV file
   # write.csv(ediData,file="./inst/ediData.csv", fileEncoding="UTF-8")
   DatabaseConnector::disconnect(conn)
@@ -99,6 +101,6 @@ CreateCsv<-function(ediData,
 
   colnames(ediData)<-SqlRender::camelCaseToSnakeCase(colnames(ediData))
 
-  write.csv(ediData, filePath, row.names = FALSE)
+  write.csv(ediData, filePath, row.names = FALSE, fileEncoding="UTF-8")
   print(sprintf("EDI data is written in csv format at %s with total line number of %d", filePath, nrow(ediData)))
 }
