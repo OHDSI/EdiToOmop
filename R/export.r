@@ -35,8 +35,8 @@ GenerateEdiVocaTable<-function(ediData,
 
   CREATE TABLE @vocabulary_database_schema.@table_name (
   concept_code			  	VARCHAR(50)		NOT NULL ,
-  concept_name			  	VARCHAR(MAX)	NOT NULL ,  --Please note that we allowed lengthy concept name
-  concept_synonym       VARCHAR(MAX)	NULL,
+  concept_name			  	VARCHAR(2000)	NOT NULL ,  --Please note that we allowed lengthy concept name
+  concept_synonym       VARCHAR(2000)	NULL,
   domain_id				      VARCHAR(20)		NOT NULL ,
   vocabulary_id			  	VARCHAR(20)		NOT NULL ,
   concept_class_id			VARCHAR(20)		NOT NULL ,

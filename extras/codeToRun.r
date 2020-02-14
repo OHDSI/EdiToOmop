@@ -24,6 +24,7 @@ deviceData<-EdiToOmop::DeviceProcess(exelFilePath="./inst/excels/Device2019.10.1
                                      materialName = "재 질",
                                      KoreanDictFile="./inst/csv/tmt_Eng_Kor_translation_ANSI.csv")
 
+
 sugaData <- EdiToOmop::SugaProcess(exelFilePath = "./inst/excels/Suga2019.10.1.xlsx",
                                    sheetName = "의치과_급여_전체",
                                    sugaData=NULL,
@@ -49,6 +50,16 @@ ediData=rbind(deviceData,drugData,sugaData)
 #ediData<-ediData[order(ediData$concept_code),]
 
 max(nchar(ediData$conceptName)) # we will allow lengthy concept name
+
+## del duplicated
+dupl<-ediData[duplicated(ediData$conceptCode) | duplicated(ediData$conceptCode, fromLast=TRUE),]
+dupl_del<-dupl[dupl$domainId !="Device",]
+dupl_add<-dupl[dupl$domainId =="Device",]
+
+ediData<-ediData[!(ediData$conceptCode %in% dupl$conceptCode),]
+ediData<-rbind(ediData, dupl_add)
+
+rm(dupl, dupl_add, dupl_del)
 
 #We will insert these data into the database.
 #Be careful! This function will remove the table(tableName) and re-generate it.

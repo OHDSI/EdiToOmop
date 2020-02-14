@@ -13,7 +13,7 @@ SugaProcess(
   EnglishName,
   startDateName,
   sanjungName,
-  KoreanDictFile = "./inst/csv/suga_Eng_Kor_translation_ANSI.csv"
+  KoreanDictFile
 )
 }
 \arguments{

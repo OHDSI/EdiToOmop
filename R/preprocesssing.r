@@ -133,7 +133,7 @@ SugaProcess<-function(exelFilePath,
                       EnglishName,
                       startDateName,
                       sanjungName,
-                      KoreanDictFile="./inst/csv/suga_Eng_Kor_translation_ANSI.csv"
+                      KoreanDictFile
 ){
   if(is.null(sugaData)){
     sugaData <- readxl::read_excel(exelFilePath,
@@ -193,6 +193,11 @@ SugaProcess<-function(exelFilePath,
 
   sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Proc Hierarchy")] <- "Meas Class"
   sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Procedure")] <- "Measurement"
+
+  ## Measurement D's concept class id -> Proc Hierarchy
+  sugaDf$conceptClassId[sugaDf$domainId == "Measurement"&
+                          grepl("^D",sugaDf$conceptCode)]<-"Proc Hierarchy"
+
 
   #replace 'Measurement' in domain_id with 'Procedure' where concept_class_id ='Measurement'
 
