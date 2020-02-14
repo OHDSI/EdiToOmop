@@ -2,12 +2,14 @@
 library(EdiToOmop)
 
 ##Environment Settings
-connectionDetails <- DatabaseConnector::createConnectionDetails(dbms="sql server",
-                                                                user=Sys.getenv("USER_ID"),
-                                                                schema=Sys.getenv("MY_SCHEMA"),
-                                                                password=Sys.getenv("PASSWORD"),
-                                                                server=Sys.getenv("MY_SERVER"))
-vocaTableName = "ediVocaTable" ##Table name for vocabulary
+connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "sql server",
+                                                                server = Sys.getenv("server_ip_17"),
+                                                                schema = Sys.getenv("ediToOmop"),
+                                                                user = Sys.getenv("USER_ID"),
+                                                                password = Sys.getenv("PASSWORD_17")
+)
+
+vocaTableName = "edi_voca_table" ##Table name for vocabulary
 ###########################
 
 
@@ -21,6 +23,7 @@ deviceData<-EdiToOmop::DeviceProcess(exelFilePath="./inst/excels/Device2019.10.1
                                      startDateName="적용일자",
                                      materialName = "재 질",
                                      KoreanDictFile="./inst/csv/tmt_Eng_Kor_translation_ANSI.csv")
+
 
 sugaData <- EdiToOmop::SugaProcess(exelFilePath = "./inst/excels/Suga2019.10.1.xlsx",
                                    sheetName = "의치과_급여_전체",
@@ -43,12 +46,24 @@ drugData<-EdiToOmop::DrugProcess(exelFilePath = "./inst/excels/Drug2019.10.1.xls
                                  drugDosageUnit = "단위",
                                  previousConceptCode = "목록정비전코드")
 
-ediData=rbind(deviceData,sugaData,drugData)
+ediData=rbind(deviceData,drugData,sugaData)
+#ediData<-ediData[order(ediData$concept_code),]
 
 max(nchar(ediData$conceptName)) # we will allow lengthy concept name
 
+## del duplicated
+dupl<-ediData[duplicated(ediData$conceptCode) | duplicated(ediData$conceptCode, fromLast=TRUE),]
+dupl_del<-dupl[dupl$domainId !="Device",]
+dupl_add<-dupl[dupl$domainId =="Device",]
+
+ediData<-ediData[!(ediData$conceptCode %in% dupl$conceptCode),]
+ediData<-rbind(ediData, dupl_add)
+
+rm(dupl, dupl_add, dupl_del)
+
 #We will insert these data into the database.
 #Be careful! This function will remove the table(tableName) and re-generate it.
+
 EdiToOmop::GenerateEdiVocaTable(ediData = ediData,
                                 connectionDetails = connectionDetails,
                                 vocabularyDatabaseSchema = connectionDetails$schema,
@@ -59,6 +74,7 @@ EdiToOmop::GenerateEdiVocaTable(ediData = ediData,
 CreateCsv(ediData = ediData,
           filePath = "./inst/EdiData/EdiData.csv"
 )
+
 
 
 #### update ####

@@ -28,6 +28,9 @@
 #' @param materialName        A column name for the material of device.
 #' @param KoreanDictFile  Path for csv file containing translation between Korean and English. If you don't want to translate, please set this value as NULL
 #'
+#' @import readxl
+#' @import dplyr
+#'
 #' @export
 DeviceProcess<-function(exelFilePath,
                         sheetName,
@@ -64,7 +67,7 @@ DeviceProcess<-function(exelFilePath,
                     conceptName=conceptName,
                     conceptSynonym=conceptSynonym,
                     domainId = "Device",
-                    vocabularyId = "Korean EDI",
+                    vocabularyId = "EDI",
                     conceptClassId = "Device",
                     validStartDate = ifelse( is.na(startDate),as.Date("1970-01-01"),as.Date(as.character(startDate))),
                     validEndDate = as.Date("2099-12-31"),
@@ -130,7 +133,7 @@ SugaProcess<-function(exelFilePath,
                       EnglishName,
                       startDateName,
                       sanjungName,
-                      KoreanDictFile="./inst/csv/suga_Eng_Kor_translation_ANSI.csv"
+                      KoreanDictFile
 ){
   if(is.null(sugaData)){
     sugaData <- readxl::read_excel(exelFilePath,
@@ -157,7 +160,7 @@ SugaProcess<-function(exelFilePath,
                        conceptName = conceptName,
                        conceptSynonym=conceptSynonym,
                        domainId = "Procedure",
-                       vocabularyId = "Korean EDI",
+                       vocabularyId = "EDI",
                        conceptClassId = "Proc Hierarchy",
                        validStartDate = ifelse( is.na(startDate),as.Date("1970-01-01"), as.Date(as.character(startDate))),
                        validEndDate = as.Date("2099-12-31"),
@@ -181,15 +184,24 @@ SugaProcess<-function(exelFilePath,
 
   ##Set domain ID
   sugaDf$domainId[grepl("^A[AH]",sugaDf$conceptCode) |
-                    grepl("^[BCEFG]",sugaDf$conceptCode) |
+                    grepl("^[BCDEFG]",sugaDf$conceptCode) |
                     grepl("^H[AC]",sugaDf$conceptCode) |
                     grepl("^FA",sugaDf$conceptCode) ] <- "Measurement"
 
   ##Set concept class ID
-  sugaDf$conceptClassId[nchar(sugaDf$conceptCode)>nchar(sugaDf$ancestorConceptCode)] <- "Proc code"
+  sugaDf$conceptClassId[nchar(sugaDf$conceptCode)>nchar(sugaDf$ancestorConceptCode)] <- "Procedure"
 
-  sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Proc Hierarchy")] <- "Meas Hierarchy"
-  sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Proc code")] <- "Meas code"
+  sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Proc Hierarchy")] <- "Meas Class"
+  sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Procedure")] <- "Measurement"
+
+  ## Measurement D's concept class id -> Proc Hierarchy
+  sugaDf$conceptClassId[sugaDf$domainId == "Measurement"&
+                          grepl("^D",sugaDf$conceptCode)]<-"Proc Hierarchy"
+
+
+  #replace 'Measurement' in domain_id with 'Procedure' where concept_class_id ='Measurement'
+
+  sugaDf$domainId[grepl("Measurement",sugaDf$conceptClassId)] <- "Procedure"
 
   if(!is.null(KoreanDictFile)) {
     #nrow(sugaDf2) #270413
@@ -265,12 +277,12 @@ DrugProcess<-function(exelFilePath,
   drugDosageUnit <- dplyr::pull(drugData, drugDosageUnit)
   conceptSynonym <- dplyr::pull(drugData, drugName)
 
-  mdcDf <- data.frame(conceptCode = conceptCode,
+  mdcDf <- dplyr::data_frame(conceptCode = conceptCode,
                       conceptName = conceptCode,
                       conceptSynonym = conceptSynonym,
                       domainId = "Drug",
-                      vocabularyId = "Korean EDI",
-                      conceptClassId = "Branded Drug",
+                      vocabularyId = "EDI",
+                      conceptClassId = "Drug Product",
                       validStartDate = as.Date("1970-01-01"),
                       validEndDate = as.Date("2099-12-31"),
                       invalidReason = NA,
@@ -283,6 +295,7 @@ DrugProcess<-function(exelFilePath,
                       stringsAsFactors=FALSE
   )
 
+
   #Distinguish Clinical Drug from Branded Drug
   mdcDf$vocabularyId[is.na(mdcDf$conceptSynonym)] <- "KDC"
   mdcDf$conceptClassId[mdcDf$vocabularyId=="KDC"] <- "Clinical Drug"
@@ -294,7 +307,7 @@ DrugProcess<-function(exelFilePath,
   drugNameDf <- aggregate(conceptName ~ ancestorConceptCode, data = drugNameDf, paste, collapse = ",")
 
   #Only Branded Drugs of EDI
-  bdgDf <- mdcDf[mdcDf$vocabularyId=="Korean EDI",]
+  bdgDf <- mdcDf[mdcDf$vocabularyId=="EDI",]
   bdgDf$conceptName <- NULL
 
   #Set the name of Branded Drug as Clinical Drug Names
