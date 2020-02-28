@@ -317,6 +317,8 @@ DrugProcess<-function(exelFilePath,
                    "validStartDate", "validEndDate", "invalidReason","ancestorConceptCode","previousConceptCode",
                    "material", "dosage", "dosageUnit","sanjungName")]
 
+  bdgDf$conceptName<-gsub("[ㄱ-힣]","", bdgDf$conceptName)
+
   return(bdgDf)
 }
 

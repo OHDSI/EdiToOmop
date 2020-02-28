@@ -9,7 +9,7 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "sql serv
                                                                 password = Sys.getenv("PASSWORD_17")
 )
 
-vocaTableName = "edi_voca_table" ##Table name for vocabulary
+vocaTableName = "test_table" ##Table name for vocabulary
 ###########################
 
 
@@ -46,7 +46,8 @@ drugData<-EdiToOmop::DrugProcess(exelFilePath = "./inst/excels/Drug2019.10.1.xls
                                  drugDosageUnit = "단위",
                                  previousConceptCode = "목록정비전코드")
 
-ediData=rbind(deviceData,drugData,sugaData)
+ediData=rbind(deviceData,sugaData,drugData)
+
 #ediData<-ediData[order(ediData$concept_code),]
 
 max(nchar(ediData$conceptName)) # we will allow lengthy concept name
@@ -61,10 +62,11 @@ ediData<-rbind(ediData, dupl_add)
 
 rm(dupl, dupl_add, dupl_del)
 
+
 #We will insert these data into the database.
 #Be careful! This function will remove the table(tableName) and re-generate it.
 
-EdiToOmop::GenerateEdiVocaTable(ediData = ediData,
+EdiToOmop::GenerateEdiVocaTable(ediData = drugData,
                                 connectionDetails = connectionDetails,
                                 vocabularyDatabaseSchema = connectionDetails$schema,
                                 tableName = vocaTableName,
