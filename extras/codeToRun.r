@@ -74,7 +74,7 @@ EdiToOmop::GenerateEdiVocaTable(ediData = drugData,
 )
 
 CreateCsv(ediData = ediData,
-          filePath = "C:/Users/AJOU_MED/Desktop/temp/edi.csv"
+          filePath = "./inst/EdiData/EdiData.csv"
 )
 
 
