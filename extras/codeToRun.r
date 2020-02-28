@@ -9,7 +9,7 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "sql serv
                                                                 password = Sys.getenv("PASSWORD_17")
 )
 
-vocaTableName = "test_table" ##Table name for vocabulary
+vocaTableName = "concept" ##Table name for vocabulary
 ###########################
 
 
@@ -69,7 +69,7 @@ rm(dupl, dupl_add, dupl_del)
 #We will insert these data into the database.
 #Be careful! This function will remove the table(tableName) and re-generate it.
 
-EdiToOmop::GenerateEdiVocaTable(ediData = drugData,
+EdiToOmop::GenerateEdiVocaTable(ediData = ediData,
                                 connectionDetails = connectionDetails,
                                 vocabularyDatabaseSchema = connectionDetails$schema,
                                 tableName = vocaTableName,
