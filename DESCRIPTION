@@ -3,9 +3,11 @@ Type: Package
 Title: A package for upload EDI code to OMOP code
 Version: 0.1.0
 Date: 2019-12-20
-Author: 
-  Seng Chan You <applegna@gmail.com>,
-  Yeon Chan Seong <ycseong07@gmail.com>,
+Author@R: 
+  person("Sengchan", "You", role=c("aut", "cre"), email = "applegna@gmail.com")
+  person("Yeonchan", "Seong", role="cre", email = "ycseong07@gmail.com")
+  person("Jimyung", "Park", role="ctb", email = "cory66421@gmail.com")
+  person("Jaehyeong", "Cho", role="ctb", email = "boyinai03@gmail.com")
 Maintainer: Seng Chan You <applegna@gmail.com>
 Description: A package for upload EDI code to OMOP code
 License: Apache 2.0
