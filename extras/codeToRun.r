@@ -46,6 +46,9 @@ drugData<-EdiToOmop::DrugProcess(exelFilePath = "./inst/excels/Drug2019.10.1.xls
                                  drugDosageUnit = "단위",
                                  previousConceptCode = "목록정비전코드")
 
+## delete korean in concept_name of drugdata
+drugData$conceptName <- gsub("[ㄱ-힣]","", drugData$conceptName)
+
 ediData=rbind(deviceData,sugaData,drugData)
 
 #ediData<-ediData[order(ediData$concept_code),]
