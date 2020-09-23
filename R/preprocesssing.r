@@ -176,15 +176,10 @@ SugaProcess<-function(exelFilePath,
   sugaDf$validStartDate<-lubridate::as_date(sugaDf$validStartDate)
   sugaDf$validEndDate<-lubridate::as_date(sugaDf$validEndDate)
 
-  #If ancestor is identical to concpet code, then remove the ancestor code
-  sugaDf$ancestorConceptCode[sugaDf$ancestorConceptCode==sugaDf$conceptCode] <- NA
-
-  #If ancestor is not included to concpet code, then remove the ancestor code
-  sugaDf$ancestorConceptCode[!sugaDf$ancestorConceptCode %in% sugaDf$conceptCode] <- NA
 
   ##Set domain ID
   sugaDf$domainId[grepl("^A[AH]",sugaDf$conceptCode) |
-                    grepl("^[BCDEFG]",sugaDf$conceptCode) |
+                    grepl("^[BCEFG]",sugaDf$conceptCode) |
                     grepl("^H[AC]",sugaDf$conceptCode) |
                     grepl("^FA",sugaDf$conceptCode) ] <- "Measurement"
 
@@ -194,14 +189,20 @@ SugaProcess<-function(exelFilePath,
   sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Proc Hierarchy")] <- "Meas Class"
   sugaDf$conceptClassId[(sugaDf$domainId=="Measurement") & (sugaDf$conceptClassId=="Procedure")] <- "Measurement"
 
+  #If ancestor is identical to concpet code, then remove the ancestor code
+  sugaDf$ancestorConceptCode[sugaDf$ancestorConceptCode==sugaDf$conceptCode] <- NA
+
+  #If ancestor is not included to concpet code, then remove the ancestor code
+  sugaDf$ancestorConceptCode[!sugaDf$ancestorConceptCode %in% sugaDf$conceptCode] <- NA
+
+
   ## Measurement D's concept class id -> Proc Hierarchy
-  sugaDf$conceptClassId[sugaDf$domainId == "Measurement"&
-                          grepl("^D",sugaDf$conceptCode)]<-"Proc Hierarchy"
+  #sugaDf$conceptClassId[sugaDf$domainId == "Measurement"&
+  #                       grepl("^D",sugaDf$conceptCode)]<-"Proc Hierarchy"
 
 
   #replace 'Measurement' in domain_id with 'Procedure' where concept_class_id ='Measurement'
-
-  sugaDf$domainId[grepl("Measurement",sugaDf$conceptClassId)] <- "Procedure"
+  #sugaDf$domainId[grepl("Measurement",sugaDf$conceptClassId)] <- "Procedure"
 
   if(!is.null(KoreanDictFile)) {
     #nrow(sugaDf2) #270413
@@ -226,7 +227,7 @@ SugaProcess<-function(exelFilePath,
   }
 
   ##  add sanjungName in conceptSynonym
-  sugaDf$conceptSynonym<-paste(dplyr::pull(sugaDf, "conceptSynonym"), dplyr::pull(sugaDf, "sanjungName"), sep=", ")
+  sugaDf$conceptSynonym<-gsub(", NA","",paste(dplyr::pull(sugaDf, "conceptSynonym"), dplyr::pull(sugaDf, "sanjungName"), sep=", "))
 
   #remove unnecessary columns
   sugaDf<-sugaDf[c("conceptCode", "conceptName", "conceptSynonym", "domainId", "vocabularyId", "conceptClassId",
